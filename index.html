@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operation Silenced Signal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1208;
+    --paper: #f5efe2;
+    --aged: #c9a97a;
+    --rust: #8b3a1a;
+    --forest: #2d4a2d;
+    --gold: #b8912a;
+    --cream: #ede4d0;
+    --redact: #111111;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #221a0f;
+    font-family: 'Source Serif 4', Georgia, serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 28px 14px 60px;
+  }
+
+  .frame {
+    max-width: 880px;
+    margin: 0 auto;
+    background: var(--paper);
+    border: 3px solid var(--aged);
+    box-shadow: 0 0 0 8px #1a1208, 0 0 0 10px var(--aged), 0 28px 80px rgba(0,0,0,0.8);
+    position: relative;
+  }
+
+  .frame::before {
+    content: '';
+    position: absolute;
+    inset: 7px;
+    border: 1px solid rgba(184,145,42,0.25);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  header {
+    background: var(--ink);
+    padding: 46px 52px 38px;
+    text-align: center;
+    position: relative;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: repeating-linear-gradient(90deg, var(--gold) 0, var(--gold) 8px, transparent 8px, transparent 14px);
+  }
+
+  .pre-title {
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    opacity: 0.8;
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(30px, 5.5vw, 50px);
+    color: var(--paper);
+    line-height: 1.1;
+    font-weight: 700;
+  }
+
+  header h1 em {
+    display: block;
+    font-style: italic;
+    font-size: 0.52em;
+    color: var(--aged);
+    letter-spacing: 3px;
+    margin-top: 8px;
+    font-weight: 400;
+  }
+
+  .rule { width: 56px; height: 2px; background: var(--gold); margin: 20px auto 0; }
+
+  .byline {
+    color: var(--aged);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 16px;
+    opacity: 0.65;
+  }
+
+  nav {
+    background: var(--cream);
+    border-bottom: 2px solid var(--aged);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  nav a {
+    padding: 13px 18px;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--ink);
+    border-right: 1px solid var(--aged);
+    font-weight: 600;
+    transition: background 0.18s, color 0.18s;
+  }
+
+  nav a:first-child { border-left: 1px solid var(--aged); }
+  nav a:hover { background: var(--ink); color: var(--paper); }
+
+  .content { padding: 0 52px; }
+
+  @media (max-width: 580px) {
+    .content { padding: 0 22px; }
+    header { padding: 32px 22px 28px; }
+  }
+
+  section {
+    padding: 48px 0;
+    border-bottom: 1px solid var(--aged);
+  }
+
+  section:last-child { border-bottom: none; }
+
+  .label {
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(21px, 3.8vw, 30px);
+    color: var(--rust);
+    line-height: 1.2;
+    margin-bottom: 22px;
+    font-weight: 700;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--ink);
+    margin: 30px 0 10px;
+    font-weight: 700;
+  }
+
+  p {
+    font-size: 16px;
+    line-height: 1.78;
+    color: #2c2010;
+    margin-bottom: 14px;
+  }
+
+  .callout {
+    background: var(--cream);
+    border-left: 4px solid var(--rust);
+    padding: 18px 24px;
+    margin: 22px 0;
+    font-style: italic;
+    font-size: 15.5px;
+    line-height: 1.72;
+    color: var(--ink);
+  }
+
+  /* ── CLUE CARDS ── */
+  .clue-grid { display: grid; gap: 26px; margin-top: 14px; }
+
+  .clue-card {
+    background: var(--cream);
+    border: 1px solid var(--aged);
+    padding: 26px 28px;
+    position: relative;
+    transition: opacity 0.3s;
+  }
+
+  .clue-card::before {
+    content: attr(data-num);
+    position: absolute;
+    top: -1px; left: -1px;
+    background: var(--rust);
+    color: var(--paper);
+    font-size: 9.5px;
+    letter-spacing: 2px;
+    padding: 3px 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .clue-card h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 16.5px;
+    margin: 16px 0 9px;
+    color: var(--rust);
+  }
+
+  .clue-card p { font-size: 15.5px; margin-bottom: 9px; }
+
+  .tag {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: var(--forest);
+    color: #c8dcc8;
+    padding: 2px 9px;
+    margin-top: 8px;
+    margin-right: 5px;
+  }
+
+  .riddle {
+    background: #1a1208;
+    color: var(--aged);
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 15px;
+    padding: 18px 22px;
+    margin: 12px 0;
+    line-height: 1.72;
+    border-left: 3px solid var(--gold);
+  }
+
+  .cipher {
+    background: #0d0d0d;
+    color: #7dff7d;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    padding: 16px 20px;
+    letter-spacing: 3px;
+    overflow-x: auto;
+    margin: 12px 0;
+    border: 1px solid #2a2a2a;
+    line-height: 1.9;
+  }
+
+  /* ── ANSWER BLOCK ── */
+  .answer-wrap {
+    position: relative;
+    margin-top: 16px;
+  }
+
+  .answer-content {
+    background: #fff8ee;
+    border: 1px dashed var(--aged);
+    padding: 16px 20px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #2c2010;
+    display: none;
+  }
+
+  .answer-content.revealed {
+    display: block;
+    animation: inkBleed 0.6s ease forwards;
+  }
+
+  @keyframes inkBleed {
+    from { opacity: 0; filter: blur(3px); }
+    to   { opacity: 1; filter: blur(0); }
+  }
+
+  /* Classified stamp */
+  .classified-stamp {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) rotate(-18deg);
+    border: 4px solid #c0161e;
+    color: #c0161e;
+    font-family: 'Courier New', monospace;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 6px;
+    padding: 6px 18px;
+    pointer-events: none;
+    text-transform: uppercase;
+    opacity: 1;
+    transition: opacity 0.55s ease, transform 0.55s ease;
+    z-index: 4;
+    white-space: nowrap;
+    text-shadow: 0 0 2px rgba(192,22,30,0.4);
+  }
+
+  .classified-stamp.fade-out {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(-18deg) scale(1.15);
+  }
+
+  /* Reveal button */
+  .reveal-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    background: var(--ink);
+    color: var(--aged);
+    border: none;
+    padding: 9px 20px;
+    font-family: 'Source Serif 4', serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+  }
+
+  .reveal-btn:hover { background: var(--rust); color: var(--paper); }
+  .reveal-btn:disabled { opacity: 0.4; cursor: default; }
+
+  /* ── LOCKED STATE ── */
+  .clue-card.locked .lock-overlay {
+    display: block;
+  }
+
+  .clue-card.locked .card-body {
+    position: relative;
+  }
+
+  /* redaction bars on locked text */
+  .clue-card.locked .redactable p,
+  .clue-card.locked .redactable h4 {
+    position: relative;
+    color: transparent !important;
+    user-select: none;
+  }
+
+  .clue-card.locked .redactable p::after,
+  .clue-card.locked .redactable h4::after {
+    content: '';
+    position: absolute;
+    inset: 2px 0;
+    background: var(--redact);
+    border-radius: 1px;
+  }
+
+  .clue-card.locked .riddle,
+  .clue-card.locked .cipher {
+    position: relative;
+    color: transparent !important;
+    user-select: none;
+  }
+
+  .clue-card.locked .riddle::after,
+  .clue-card.locked .cipher::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--redact);
+  }
+
+  .clue-card.locked .tag { opacity: 0.35; }
+
+  .clue-card.locked .reveal-btn { display: none; }
+
+  .locked-notice {
+    display: none;
+    margin-top: 14px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #999;
+    font-style: italic;
+  }
+
+  .clue-card.locked .locked-notice { display: block; }
+
+  /* unlock animation */
+  .clue-card.unlocking {
+    animation: unlockFlash 0.5s ease;
+  }
+
+  @keyframes unlockFlash {
+    0%   { background: var(--cream); }
+    30%  { background: #fff3d0; }
+    100% { background: var(--cream); }
+  }
+
+  /* small tilt quirks */
+  .clue-card:nth-child(3) { transform: rotate(-0.3deg); }
+  .clue-card:nth-child(6) { transform: rotate(0.25deg); }
+  .clue-card.locked:nth-child(3),
+  .clue-card.locked:nth-child(6) { transform: none; }
+
+  /* ── UNIT TABLE ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14.5px;
+    margin-top: 12px;
+  }
+
+  th {
+    background: var(--ink);
+    color: var(--aged);
+    text-align: left;
+    padding: 11px 16px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+
+  td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--aged);
+    vertical-align: top;
+    line-height: 1.55;
+  }
+
+  tr:nth-child(even) td { background: var(--cream); }
+
+  .stamp {
+    display: inline-block;
+    border: 2px solid var(--rust);
+    color: var(--rust);
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    transform: rotate(-2deg);
+    font-weight: 700;
+    margin-bottom: 16px;
+    opacity: 0.7;
+  }
+
+  .member-list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .member-list li {
+    background: var(--ink);
+    color: var(--aged);
+    padding: 9px 20px;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+  }
+
+  footer {
+    background: var(--ink);
+    padding: 24px 52px;
+    text-align: center;
+  }
+
+  footer p {
+    color: var(--aged);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 0;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <header>
+    <p class="pre-title">APUSH Final Project - Digital Dossier</p>
+    <h1>
+      Operation Silenced Signal
+      <em>A National Treasure - Style Historical Mystery</em>
+    </h1>
+    <div class="rule"></div>
+    <p class="byline">AP United States History &nbsp;&bull;&nbsp; block 2 &nbsp;&bull;&nbsp;</p>
+  </header>
+
+  <nav>
+    <a href="#overview">Overview</a>
+    <a href="#premise">The Mystery</a>
+    <a href="#clues">Clue Chain</a>
+    <a href="#units">APUSH Units</a>
+    <a href="#reveal">Final Reveal</a>
+    <a href="#team">Our Team</a>
+  </nav>
+
+  <div class="content">
+
+    <!-- OVERVIEW -->
+    <section id="overview">
+      <p class="label">Introduction</p>
+      <h2>What Is This Project?</h2>
+      <p>This is our APUSH National Treasure&ndash;style historical mystery. We designed a fictional but historically grounded clue chain spanning all nine units of United States history. From colonial America all the way through the Cold War era and into the present.</p>
+      <p>The mystery centers on a suppressed invention hidden in 1953 by Dr. Calvin Mercer, a Black engineer whose free-energy communication device was classified and buried by the Eisenhower administration under pressure from oil and telecommunications corporations. The clues he left behind require a deep knowledge of American history to follow.</p>
+      <div class="callout">
+        "Those who cannot remember the past are condemned to repeat it." -- George Santayana, 1905
+      </div>
+    </section>
+
+    <!-- PREMISE -->
+    <section id="premise">
+      <p class="label">The Mystery</p>
+      <div class="stamp">Classified</div>
+      <h2>Operation Silenced Signal: The Full Story</h2>
+
+      <h3>What Is the Treasure?</h3>
+      <p>The treasure is a sealed metal case containing original blueprints, lab notes, and a working prototype schematic for a long-range wireless communication device invented in 1952 by a team of African American engineers at a government-funded research lab in Washington, D.C. The device ran on ambient electromagnetic energy - no fossil fuels, no infrastructure costs. It could transmit voice and data signals across hundreds of miles, completely free.</p>
+
+      <h3>Why Was It Hidden?</h3>
+      <p>By 1953, oil industry lobbyists and telephone company executives had caught wind of the invention. Acting through back channels in the newly formed National Security Agency, they pressured the Eisenhower administration to classify the project under the guise of national security. The inventors were ordered to stop all work, surrender their materials, and sign non-disclosure agreements.</p>
+      <p>Before handing everything over, the lead engineer secretly copied the core documents and hid them inside a chain of historically significant locations across the East Coast - each one connected by a clue only someone with a deep knowledge of American history could follow.</p>
+
+      <h3>Who Hid It?</h3>
+      <p>Dr. Calvin Mercer graduated from Howard University in 1944 and served in the U.S. Army Signal Corps during World War II. After the war he joined a government research program and built his invention with a small team of colleagues. He was connected to a network of civil rights intellectuals who believed the suppression of the device was not just a corporate crime, but a racial one - another chapter in the long history of Black innovation being stolen or silenced.</p>
+
+      <h3>Why Does It Matter Today?</h3>
+      <p>If found, the documents would prove that the U.S. government actively suppressed clean energy technology during the Cold War - not for national security, but for corporate profit. It would also illuminate a forgotten chapter of African American scientific achievement and government betrayal, connecting directly to modern debates about energy policy, corporate influence in government, and racial inequality in STEM.</p>
+
+      <h3>How It Connects to U.S. History</h3>
+      <p>Every element of this mystery is rooted in real historical patterns. The suppression of Black inventors is documented. Government-corporate cooperation during the Cold War was real. The NSA was founded in 1952. The contradiction between American ideals and American practice runs from the colonial era through Reconstruction, through the Gilded Age, through the Cold War, and into the present. This mystery follows that thread across all nine APUSH units.</p>
+    </section>
+
+    <!-- CLUE CHAIN -->
+    <section id="clues">
+      <p class="label">The Puzzle</p>
+      <h2>The Clue Chain -; Eight Steps to the Truth</h2>
+      <p>Each clue connects to the next. Reveal the answer to unlock the following clue.</p>
+
+      <div class="clue-grid">
+
+        <!-- CLUE 1 -->
+        <div class="clue-card" data-num="Clue 1 - Riddle" data-clue="1">
+          <div class="card-body">
+            <div class="redactable">
+              <h4>The First Stone: A Colonial Beginning</h4>
+              <p><strong>APUSH Unit 1</strong> - Pre-Columbian &amp; Colonial America</p>
+              <p>A mysterious envelope is found tucked inside a first-edition copy of Benjamin Franklin's <em>Poor Richard's Almanack</em> at the Library of Congress. Inside is a handwritten riddle:</p>
+            </div>
+            <div class="riddle">
+              "I was built before the nation had a name,<br>
+              My bricks were laid by those without claim.<br>
+              The first fire burned here, the first voice cried out,<br>
+              Find where the colony planted its doubt.<br>
+              Look beneath the seal of the oldest hall,<br>
+              Where Penn's first promise was given to all."
+            </div>
+            <div class="redactable">
+              <span class="tag">Riddle</span><span class="tag">Unit 1</span>
+            </div>
+
+            <div class="answer-wrap">
+              <div class="classified-stamp">Classified</div>
+              <div class="answer-content">
+                <strong>Answer:</strong> <strong>Independence Hall, Philadelphia</strong>; originally built as the Pennsylvania State House in 1732 under William Penn's colonial charter. The phrase "those without claim" refers to the enslaved laborers and displaced Native peoples whose labor built the colonial foundations of the nation.
+              </div>
+            </div>
+            <button class="reveal-btn" onclick="revealAnswer(this, 2)">&#9656; Reveal Answer</button>
+            <p class="locked-notice">&#128274; Solve the previous clue to unlock this one.</p>
+          </div>
+        </div>
+
+        <!-- CLUE 2 -->
+        <div class="clue-card locked" data-num="Clue 2 - Map / Geography" data-clue="2">
+          <div class="card-body">
+            <div class="redactable">
+              <h4>The Longitude of Revolution</h4>
+              <p><strong>APUSH Unit 2</strong> - Colonial America &amp; Revolution (1607–1789)</p>
+              <p>Hidden inside a loose floorboard at Independence Hall is a hand-drawn map of the original thirteen colonies, slightly water-damaged. Five colony names are underlined: <em>Virginia, Massachusetts, New York, Pennsylvania, Georgia.</em> Each has a small number written beside it in faded ink.</p>
+              <span class="tag">Map / Geography</span><span class="tag">Unit 2</span>
+            </div>
+
+            <div class="answer-wrap">
+              <div class="classified-stamp">Classified</div>
+              <div class="answer-content">
+                <strong>Answer:</strong> The numbers correspond to each colony's Constitutional ratification order. When arranged in that order, the first letters form an Ottendorf cipher key - pointing to the next location using the text of the Bill of Rights as the reference document. This leads to the <strong>Jefferson Memorial, Washington D.C.</strong>
+              </div>
+            </div>
+            <button class="reveal-btn" onclick="revealAnswer(this, 3)">&#9656; Reveal Answer</button>
+            <p class="locked-notice">&#128274; Solve the previous clue to unlock this one.</p>
+          </div>
+        </div>
+
+        <!-- CLUE 3 -->
+        <div class="clue-card locked" data-num="Clue 3 - Artifact / Document" data-clue="3">
+          <div class="card-body">
+            <div class="redactable">
+              <h4>The Bill's Hidden Margin</h4>
+              <p><strong>APUSH Unit 3</strong> - The Early Republic (1789–1848)</p>
+              <p>Applying the Ottendorf cipher from Clue 2 to the text of the Bill of Rights decodes a single line: <em>"Seek the man who purchased Louisiana but feared what he owned."</em></p>
+              <p>This points to Thomas Jefferson - who bought the Louisiana Purchase in 1803 while remaining a slaveholder, embodying the central contradiction of a republic built on liberty that legally enslaved hundreds of thousands of people.</p>
+              <span class="tag">Artifact / Document</span><span class="tag">Unit 3</span>
+            </div>
+
+            <div class="answer-wrap">
+              <div class="classified-stamp">Classified</div>
+              <div class="answer-content">
+                <strong>Answer:</strong> The clue leads to the <strong>Jefferson Memorial, Washington D.C.</strong> A notation in pencil on a replica document in the gift shop reads: <em>"Room 14 - Monticello archive - third drawer, iron key."</em> The iron key is recovered and carried forward.
+              </div>
+            </div>
+            <button class="reveal-btn" onclick="revealAnswer(this, 4)">&#9656; Reveal Answer</button>
+            <p class="locked-notice">&#128274; Solve the previous clue to unlock this one.</p>
+          </div>
+        </div>
+
+        <!-- CLUE 4 -->
+        <div class="clue-card locked" data-num="Clue 4 - Riddle" data-clue="4">
+          <div class="card-body">
+            <div class="redactable">
+              <h4>The Iron Key and the Cotton Question</h4>
+              <p><strong>APUSH Unit 4</strong> - Expansion &amp; Reform (1800–1848)</p>
+              <p>The iron key recovered in Clue 3 has a riddle stamped into its side in tiny letters:</p>
+            </div>
+            <div class="riddle">
+              "I grew the nation's wealth but not its soul,<br>
+              I stretched from Georgia to a stolen knoll.<br>
+              The invention that bound me was spun by one hand,<br>
+              But the profit went north - the pain stayed on land.<br>
+              Find the machine that made misery pay,<br>
+              In the city where Sherman turned night into day."
+            </div>
+            <div class="redactable">
+              <span class="tag">Riddle</span><span class="tag">Unit 4</span>
+            </div>
+
+            <div class="answer-wrap">
+              <div class="classified-stamp">Classified</div>
+              <div class="answer-content">
+                <strong>Answer:</strong> The cotton gin, invented by Eli Whitney in 1793, and Sherman's March to the Sea, which ended in <strong>Savannah, Georgia</strong>. The hunter travels to the Savannah History Museum, where a replica cotton gin is on display. Taped behind the display plaque is the next clue.
+              </div>
+            </div>
+            <button class="reveal-btn" onclick="revealAnswer(this, 5)">&#9656; Reveal Answer</button>
+            <p class="locked-notice">&#128274; Solve the previous clue to unlock this one.</p>
+          </div>
+        </div>
+
+        <!-- CLUE 5 -->
+        <div class="clue-card locked" data-num="Clue 5 - Cipher / Code" data-clue="5">
+          <div class="card-body">
+            <div class="redactable">
+              <h4>The Signal Corps Cipher</h4>
+              <p><strong>APUSH Unit 5</strong> - Civil War &amp; Reconstruction (1844–1877)</p>
+              <p>Behind the cotton gin plaque is a folded sheet containing a coded message using the Union Army route cipher - a grid-based encryption system used by the U.S. Army Signal Corps during the Civil War.</p>
+            </div>
+            <div class="cipher">
+              FRDM &nbsp; HOWR &nbsp; DCLT &nbsp; USTR<br>
+              EQLS &nbsp; JSTC &nbsp; NVRG &nbsp; VDUP<br>
+              SKTH &nbsp; BLCK &nbsp; LAWS &nbsp; FRST<br>
+              GOTO &nbsp; WASH &nbsp; 1963 &nbsp; MLKJ
+            </div>
+            <div class="redactable">
+              <span class="tag">Cipher / Code</span><span class="tag">Unit 5</span>
+            </div>
+
+            <div class="answer-wrap">
+              <div class="classified-stamp">Classified</div>
+              <div class="answer-content">
+                <strong>Answer:</strong> Read in the Signal Corps route pattern - columns, bottom-up, alternating direction - the message decodes to: <strong>SEEK THE BLACK LAWS FIRST - GO TO WASHINGTON 1963 MLK.</strong> This connects the Black Codes of Reconstruction directly to the 1963 March on Washington and the <strong>Lincoln Memorial</strong>.
+              </div>
+            </div>
+            <button class="reveal-btn" onclick="revealAnswer(this, 6)">&#9656; Reveal Answer</button>
+            <p class="locked-notice">&#128274; Solve the previous clue to unlock this one.</p>
+          </div>
+        </div>
+
+        <!-- CLUE 6 -->
+        <div class="clue-card locked" data-num="Clue 6 - Map / Geography" data-clue="6">
+          <div class="card-body">
+            <div class="redactable">
+              <h4>The March Route</h4>
+              <p><strong>APUSH Units 7 &amp; 8</strong> - WWII Era &amp; Civil Rights (1890–1980)</p>
+              <p>The hunter receives a second map showing Washington, D.C. with a dotted route traced in red ink following the path of the 1963 March on Washington - from the Washington Monument to the Lincoln Memorial. At the Lincoln Memorial a small X is marked with the note: <em>"Not the steps - look beneath the dream."</em></p>
+              <span class="tag">Map / Geography</span><span class="tag">Unit 7 / Unit 8</span>
+            </div>
+
+            <div class="answer-wrap">
+              <div class="classified-stamp">Classified</div>
+              <div class="answer-content">
+                <strong>Answer:</strong> "Beneath the dream" refers not to the steps where MLK spoke, but to <strong>Howard University's Founders Library</strong> - where Dr. Mercer studied. The dream of equality was seeded in institutions like Howard long before the March. The next clue is hidden there.
+              </div>
+            </div>
+            <button class="reveal-btn" onclick="revealAnswer(this, 7)">&#9656; Reveal Answer</button>
+            <p class="locked-notice">&#128274; Solve the previous clue to unlock this one.</p>
+          </div>
+        </div>
+
+        <!-- CLUE 7 -->
+        <div class="clue-card locked" data-num="Clue 7 - Symbolism / Imagery" data-clue="7">
+          <div class="card-body">
+            <div class="redactable">
+              <h4>The Howard Seal</h4>
+              <p><strong>APUSH Unit 6</strong> - The Gilded Age &amp; Progressive Era (1865–1920)</p>
+              <p>At Howard University's Founders Library, a small envelope is tucked behind a framed copy of the university seal in the lobby. Inside is a drawing of the seal with three elements circled in red ink: the torch, the open book, and the founding year 1867.</p>
+              <span class="tag">Symbolism / Imagery</span><span class="tag">Unit 6</span>
+            </div>
+
+            <div class="answer-wrap">
+              <div class="classified-stamp">Classified</div>
+              <div class="answer-content">
+                <strong>Answer:</strong> The torch = the suppressed invention and the power of knowledge. The open book = education as liberation. The year 1867 = connects Howard's founding to the first Reconstruction Acts and the ongoing fight for Black equality. The back of the envelope reads: <em>"The last archive is where the signal was born - look under the New Deal's longest shadow."</em>
+              </div>
+            </div>
+            <button class="reveal-btn" onclick="revealAnswer(this, 8)">&#9656; Reveal Answer</button>
+            <p class="locked-notice">&#128274; Solve the previous clue to unlock this one.</p>
+          </div>
+        </div>
+
+        <!-- CLUE 8 -->
+        <div class="clue-card locked" data-num="Clue 8 - Final Riddle" data-clue="8">
+          <div class="card-body">
+            <div class="redactable">
+              <h4>The New Deal's Shadow</h4>
+              <p><strong>APUSH Units 7 &amp; 9</strong> - The Great Depression, WWII &amp; Contemporary America</p>
+            </div>
+            <div class="riddle">
+              "Roosevelt built me in a time of ruin,<br>
+              My stone was poured when hope was bruisin'.<br>
+              I hold the records of a nation's hand,<br>
+              Every worker's name, every law, every plan.<br>
+              The signal was buried in my deepest floor,<br>
+              Room two, shelf nine, behind the fire door."
+            </div>
+            <div class="redactable">
+              <span class="tag">Riddle</span><span class="tag">Artifact / Document</span><span class="tag">Unit 7 / Unit 9</span>
+            </div>
+
+            <div class="answer-wrap">
+              <div class="classified-stamp">Classified</div>
+              <div class="answer-content">
+                <strong>Final Answer:</strong> The <strong>National Archives Building, Washington D.C.</strong> - built in 1935 under FDR's New Deal. Room 2, Shelf 9, behind the fire door. The hunter arrives and opens the sealed metal case with the iron key from Clue 3. Inside: Dr. Mercer's blueprints, lab notes, and his final letter. The mystery is solved.
+              </div>
+            </div>
+            <button class="reveal-btn" onclick="revealAnswer(this, null)">&#9656; Reveal Final Answer</button>
+            <p class="locked-notice">&#128274; Solve the previous clue to unlock this one.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- APUSH UNITS -->
+    <section id="units">
+      <p class="label">Coverage</p>
+      <h2>All 9 APUSH Units</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Unit</th>
+            <th>Period</th>
+            <th>Connection in Our Mystery</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Unit 1</strong></td>
+            <td>Pre-Columbian &amp; Early Contact</td>
+            <td>Clue 1 references colonial labor and the displacement of Indigenous peoples through the founding of Pennsylvania under William Penn's charter.</td>
+          </tr>
+          <tr>
+            <td><strong>Unit 2</strong></td>
+            <td>Colonial America &amp; Revolution (1607–1789)</td>
+            <td>Clue 2 uses the thirteen colonies, Constitutional ratification order, and an Ottendorf cipher based on the Bill of Rights.</td>
+          </tr>
+          <tr>
+            <td><strong>Unit 3</strong></td>
+            <td>The Early Republic (1789–1848)</td>
+            <td>Clue 3 centers on Thomas Jefferson, the Louisiana Purchase, and the contradiction of slavery in a republic founded on liberty.</td>
+          </tr>
+          <tr>
+            <td><strong>Unit 4</strong></td>
+            <td>Expansion &amp; Reform (1800–1848)</td>
+            <td>Clue 4 uses the cotton gin, the plantation economy, westward expansion, and Sherman's March through Georgia.</td>
+          </tr>
+          <tr>
+            <td><strong>Unit 5</strong></td>
+            <td>Civil War &amp; Reconstruction (1844–1877)</td>
+            <td>Clue 5 uses a Union Army route cipher, the Black Codes of Reconstruction, and the broken promise of equality after emancipation.</td>
+          </tr>
+          <tr>
+            <td><strong>Unit 6</strong></td>
+            <td>Gilded Age &amp; Progressive Era (1865–1920)</td>
+            <td>Clue 7 uses Howard University (founded 1867), Black education as resistance, and the symbolism of knowledge during the Gilded Age.</td>
+          </tr>
+          <tr>
+            <td><strong>Unit 7</strong></td>
+            <td>Great Depression &amp; WWII (1920–1945)</td>
+            <td>Clue 8 references the New Deal, FDR's public works programs, and the National Archives built in 1935. Dr. Mercer's WWII Signal Corps service is also central to his backstory.</td>
+          </tr>
+          <tr>
+            <td><strong>Unit 8</strong></td>
+            <td>Cold War &amp; Civil Rights (1945–1980)</td>
+            <td>The entire premise lives here - the NSA founded in 1952, Eisenhower's corporate ties, the suppression of the invention, and the 1963 March on Washington.</td>
+          </tr>
+          <tr>
+            <td><strong>Unit 9</strong></td>
+            <td>Contemporary America (1980–present)</td>
+            <td>Dr. Mercer's letter connects the mystery to modern debates about energy policy, corporate power over government, and racial equity in STEM fields.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- FINAL REVEAL -->
+    <section id="reveal">
+      <p class="label">The End</p>
+      <h2>Final Reveal</h2>
+
+      <h3>Where the Treasure Is Hidden</h3>
+      <p>The sealed metal case is hidden in the National Archives Building in Washington, D.C. Its in a sub-basement storage room, <strong>Room 2, Shelf 9, behind the fire door</strong>. It has sat there untouched since 1953, overlooked because it was mislabeled as obsolete Signal Corps training materials.</p>
+
+      <h3>How the Final Clue Is Solved</h3>
+      <p>The hunter solves the last riddle by recognizing that "the New Deal's longest shadow" refers to the National Archives, a building literally constructed by FDR's New Deal labor programs. The room and shelf number are embedded in the riddle directly. The hunter arrives, finds the case, and opens it using the iron key recovered in Clue 3 - the same key Dr. Mercer used to seal it seventy years earlier.</p>
+
+      <h3>Dr. Mercer's Letter</h3>
+      <div class="callout">
+        September 3, 1953<br><br>
+        To whoever is reading this:<br><br>
+        My name is Dr. Calvin Mercer. I graduated from Howard University in 1944 and served in the United States Army Signal Corps during the war. I believed then that this country's promise was real. I am less certain now.<br><br>
+        What I built - what my team built - works. It does not need coal. It does not need oil. It does not need a monthly bill. It only needs the air around us, which has always been free. We proved it in testing. We documented everything. And then they came and took it from us, and told us to be quiet, and said it was for the good of the nation.<br><br>
+        It was not for the nation. It was for the companies.<br><br>
+        I am hiding these documents here because I believe someday someone will look for the truth. I do not know if that will be in ten years or one hundred. But the truth does not expire.<br><br>
+        This country was built on the idea that all men are created equal. It is still working on what that means. Maybe these papers will help.<br><br>
+        Good luck. Be careful. Tell the truth.<br><br>
+        - Dr. C. Mercer, September 3, 1953
+      </div>
+
+      <h3>What the Treasure Reveals About American History</h3>
+      <p>The treasure reveals three things. First, that corporate influence over the federal government did not start with modern politics - it has been shaping policy since at least the Gilded Age. Second, that Black Americans have contributed to American science and technology in ways that have been systematically erased or suppressed, from Reconstruction through the Cold War. Third, that the Cold War was not only fought against foreign enemies - it was also used to silence domestic ideas that threatened powerful economic interests.</p>
+      <p>The mystery is not just a puzzle. It is a window into continuity and change over time: the same forces behind the Black Codes of 1866 were present in the boardrooms of 1953, and versions of that struggle continue today. That is why Dr. Mercer's treasure still matters.</p>
+    </section>
+
+    <!-- TEAM -->
+    <section id="team">
+      <p class="label">The Group</p>
+      <h2>Our Team</h2>
+      <ul class="member-list">
+        <li>Ram Padala</li>
+        <li>Collin Clark</li>
+        <li>Ryan Lee</li>
+        <li>Arveen Mazaheri</li>
+      </ul>
+      <p style="margin-top:22px; font-size:14px; color:#7a6040;">AP United States History &nbsp;|&nbsp; Ms.V Class &nbsp;|&nbsp; </p>
+    </section>
+
+  </div>
+
+  <footer>
+    <p>Operation Silenced Signal -; APUSH Final Project -; Ms. V Class</p>
+  </footer>
+
+</div>
+
+<script>
+  function revealAnswer(btn, nextClueNum) {
+    const card = btn.closest('.clue-card');
+    const wrap = card.querySelector('.answer-wrap');
+    const stamp = wrap.querySelector('.classified-stamp');
+    const content = wrap.querySelector('.answer-content');
+
+    // fade stamp out
+    stamp.classList.add('fade-out');
+
+    // after stamp fades, show answer
+    setTimeout(() => {
+      stamp.style.display = 'none';
+      content.classList.add('revealed');
+      btn.disabled = true;
+      btn.textContent = '✓ Revealed';
+
+      // unlock next clue
+      if (nextClueNum) {
+        const next = document.querySelector(`.clue-card[data-clue="${nextClueNum}"]`);
+        if (next) {
+          setTimeout(() => {
+            next.classList.add('unlocking');
+            next.classList.remove('locked');
+            next.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 300);
+        }
+      }
+    }, 560);
+  }
+</script>
+</body>
+</html>
